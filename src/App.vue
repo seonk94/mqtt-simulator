@@ -5,16 +5,8 @@
       <div id="gnb">
         <h2>Gateway Simulator</h2>  
       </div>
-      <!-- <div class="utilMenu">
-        <b>S/N : </b>
-        <span><input type="text" v-model="gw_sn"/></span>
-      </div> -->
     </div>
     <Tabs class="tab-margin"/>
-    <!-- <div class="container">
-      <LeftPage :gw_sn="gw_sn" />
-      <RightPage />
-    </div> -->
     <div class="fix-button">
       <button @click="addClient">
         <v-icon center>add_circle</v-icon>
@@ -27,16 +19,12 @@
 </template>
 
 <script>
-import RightPage from './components/RightPage'
-import LeftPage from './components/LeftPage'
 import Tabs from './components/Tabs'
 import { mapGetters } from 'vuex';
 export default {
   name: 'App',
   components: {
-    RightPage,
-    LeftPage,
-    Tabs
+    Tabs,
   },
   data() {
     return {

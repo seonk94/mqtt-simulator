@@ -3,8 +3,9 @@
         <v-layout row wrap align-start justify-center>
             <v-flex xs6 id="dataSet" style="height: auto; padding:10px;">
                 <div class="formHorizental">
-                    <span><input type="text" class="inpText" v-model="data.ip" placeholder="ip"></span>
-                    <button :class="{ connect : connectOK === true , disconnect : connectOK === false }" @click="connect" :disabled=" connectOK === true">connect</button>
+                    <span><input type="text" class="inpText" v-model="data.host" placeholder="host" style="width: 27%;"></span>
+                    <span><input type="text" class="inpText" v-model="data.port" placeholder="port" style="width: 18%;"></span>
+                    <button :class="{ connect : connectOK === true , disconnect : connectOK === false }" @click="connect()" :disabled=" connectOK === true">connect</button>
                 </div>
                 <div class="formHorizental">
                     <span><input type="text" class="inpText" placeholder="gateway serial number" v-model="gw_sn"/></span>
@@ -54,6 +55,9 @@
                     <button @click="randomValue(jsonMsg)">Random</button>
                 </v-flex>
                 <h3>Publish : {{publishSuccess}}</h3>
+                <PahoClient 
+                    ref="pahoClient"
+                    :client="data"/>
             </v-flex>
 
         </v-layout>
@@ -63,6 +67,7 @@
 <script>
     import axios from 'axios';
     import simul from './simul.js';
+    import PahoClient from './PahoClient.vue'
     export default {
         name: 'MqttClient',
         props: {
@@ -71,8 +76,10 @@
         data() {
             return {
                 data: {
-                    ip: 'tcp://localhost:1883',
+                    host: 'localhost',
+                    port: 9001,
                     topic: '',
+                    clientId: '',
                     msg: '',
                     arrMsg: []
                 },
@@ -103,6 +110,7 @@
         },
         created() {
             this.client.index = this.index;
+            this.data.clientId = 'paho' + this.index;
         },
         computed: {
             IsTopicNotNull () {
@@ -196,7 +204,8 @@
                 }
             },
             connect() {
-                let params = new URLSearchParams();
+                this.$refs.pahoClient.connect();
+                /* let params = new URLSearchParams();
                 params.append('ip', this.data.ip);
 
                 axios.post('http://localhost:8080/mqtt/connect', this.data)
@@ -209,7 +218,7 @@
                             this.$store.commit('MODIFY_MQTTCLIENT', tempClient)
                             this.client = tempClient;
                         }
-                    })
+                    }) */
             },
             submitTest() {
 
@@ -280,6 +289,9 @@
             clearInterval(this.interval);
             clearInterval(this._timer);
         },
+        components: {
+            PahoClient
+        }
     }
 </script>
 

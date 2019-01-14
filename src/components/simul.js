@@ -71,7 +71,8 @@ const scan_res = {
         tm1_sn: '',
         rssi: '',
     }],
-    cmd_no: ''
+    cmd_no: '',
+    topic: '/command/'
 }
 
 export default {

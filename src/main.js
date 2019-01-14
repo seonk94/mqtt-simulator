@@ -12,6 +12,7 @@ Vue.config.productionTip = false
 Vue.use(Vuetify)
 window.axios = require('axios')
 
+
 Vue.prototype.$EventBus = new Vue();
 /* eslint-disable no-new */
 new Vue({

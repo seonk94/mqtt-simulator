@@ -11,11 +11,12 @@ export const store = new Vuex.Store({
             {
                 index: 0,
                 id: '',
+                connecting: false,
                 running: false
             }
         ],
         currentIndex: 0,
-        tempNum: 0
+        tempNum: 0,
     },
     getters: {
         getMqttClient(state) {
@@ -26,7 +27,7 @@ export const store = new Vuex.Store({
         },
         getCurrentIndex(state) {
             return state.currentIndex;
-        }
+        },
     },
     mutations: {
         ADD_MQTTCLIENT(state){
@@ -44,7 +45,7 @@ export const store = new Vuex.Store({
         },
         MODIFY_CURRENTINDEX(state, index) {
             state.currentIndex = index;
-        }
+        },
     },
     actions: {
         REMOVE_MQTTCLIENT({commit, state}, index) {
