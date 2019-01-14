@@ -4,7 +4,7 @@
 > Using paho client
 
 ## mosquitto.conf setting
-- websocket setting 
+- add mosquitto.conf last
 ```
 listener 1883
 
@@ -30,6 +30,10 @@ npm run build
 
 # mocha test
 mocha
+
+# json-server start
+cd test
+json-server --watch db.json
 ```
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
