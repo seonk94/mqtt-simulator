@@ -40,6 +40,7 @@
                     port: this.pahoClient.port,
                     id: this.pahoClient.clientId
                 }
+                
                 this.$store.commit('MODIFY_MQTTCLIENT', tempClient);
                 this.$emit('is-connect', this.pahoClient)
             },

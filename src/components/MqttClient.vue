@@ -259,6 +259,8 @@
         destroyed() {
             clearInterval(this.interval);
             clearInterval(this._timer);
+            if(this.connectOK)
+                this.pahoClient.disconnect();
         },
         components: {
             PahoClient

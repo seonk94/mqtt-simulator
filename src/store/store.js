@@ -55,14 +55,7 @@ export const store = new Vuex.Store({
             }
             const client = state.mqttClient[state.mqttClient.findIndex(item => item.index === index)]
             if(client.id != '') {
-                axios.post(`http://localhost:8080/mqtt/remove/${client.id}`) 
-                    .then(res => {
-
-                    })
-                    .catch(err => {
-                        console.log(err);
-                    })
-
+                
             }
             commit('REMOVE_MQTTCLIENT', index);
         }
