@@ -1,6 +1,7 @@
 # frontend
 
-> A Vue.js project
+> A Vue.js project for MQTT simulator
+> Using paho client
 
 ## mosquitto.conf setting
 - websocket setting 
