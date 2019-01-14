@@ -3,9 +3,9 @@
         <v-layout row wrap align-start justify-center>
             <v-flex xs6 id="dataSet" style="height: auto; padding:10px;">
                 <div class="formHorizental">
-                    <span><input type="text" class="inpText" v-model="data.host" placeholder="host" style="width: 27%;"></span>
-                    <span><input type="text" class="inpText" v-model="data.port" placeholder="port" style="width: 18%;"></span>
-                    <button :class="{ connect : connectOK === true , disconnect : connectOK === false }" @click="connect()" :disabled=" connectOK === true">connect</button>
+                    <span><input type="text" class="inpText" v-model="inputData.host" placeholder="host" style="width: 27%;"></span>
+                    <span><input type="text" class="inpText" v-model="inputData.port" placeholder="port" style="width: 18%;"></span>
+                    <button :class="{ connect : connectOK === true , disconnect : connectOK === false }" @click="connect()" :disabled="connectOK === true">connect</button>
                 </div>
                 <div class="formHorizental">
                     <span><input type="text" class="inpText" placeholder="gateway serial number" v-model="gw_sn"/></span>
@@ -16,7 +16,7 @@
                     </span>
                 </div>
                 <div class="formHorizental">
-                    <span><input type="text" class="inpText" v-model="data.topic" placeholder="topic"></span>
+                    <span><input type="text" class="inpText" v-model="topic" placeholder="topic"></span>
                 </div>
                 <br>
                 <div class="formHorizental" v-for="(msg, index) in jsonMsg" :key="index">
@@ -50,14 +50,14 @@
                     <input v-model="setTime" />
                 </v-flex>
                 <v-flex xs12>
-                    <button @click="sendStart" :disabled=" CanStart !== true">Start</button>
+                    <button @click="sendStart" :disabled=" CANSTART !== true">Start</button>
                     <button @click="sendStop">Stop</button>
                     <button @click="randomValue(jsonMsg)">Random</button>
                 </v-flex>
-                <h3>Publish : {{publishSuccess}}</h3>
                 <PahoClient 
                     ref="pahoClient"
-                    :client="data"/>
+                    :client="client(index)"
+                    @is-connect="IsConnect"/>
             </v-flex>
 
         </v-layout>
@@ -68,6 +68,8 @@
     import axios from 'axios';
     import simul from './simul.js';
     import PahoClient from './PahoClient.vue'
+    import Paho from 'paho-mqtt';
+    import { mapGetters } from 'vuex';
     export default {
         name: 'MqttClient',
         props: {
@@ -76,14 +78,14 @@
         data() {
             return {
                 data: {
+                    topic: '',
+                },
+                topic: '',
+                inputData: {
                     host: 'localhost',
                     port: 9001,
-                    topic: '',
-                    clientId: '',
-                    msg: '',
-                    arrMsg: []
+                    clientId: ''
                 },
-                client: {id: '', index: '', running: false},
                 jsonMsg: [
                     {
                         key: '',
@@ -104,73 +106,66 @@
                 interval: '',
                 _timer: '',
                 setTime: 500,
-                temporaryArr: [],
-                publishSuccess: 0
+                pahoClient: function(){}
             }
         },
         created() {
-            this.client.index = this.index;
-            this.data.clientId = 'paho' + this.index;
+            this.inputData.clientId = 'paho' + this.index;
         },
         computed: {
-            IsTopicNotNull () {
-                return this.data.topic === ''
+            ISTOPICNOTNULL () {
+                return this.topic === ''
                     ? false
                     : true
             },
-            CanStart () {
-                return this.IsTopicNotNull && this.connectOK === true
-            }
+            CANSTART () {
+                return this.ISTOPICNOTNULL && this.connectOK === true
+            },
+            ...mapGetters({
+                client: 'getMqttClientByIndex'
+            })
+            
         },
         watch: {
-            'data.ip'() {
+            'inputData.host'() {
+                this.connectOK = '';
+            },
+            'inputData.port'() {
                 this.connectOK = '';
             },
         },
         methods: {
-            addClient() {
-                this.$store.commit('ADD_MQTTCLIENT');
+            IsConnect(pahoClient) {
+                this.connectOK = true
+                this.pahoClient = pahoClient;
             },
             sendStart() {
                 
-                this.client.running = true;
-                this.$store.commit('MODIFY_MQTTCLIENT', this.client);
-
+                let tempClient = { ...this.client(this.index), running: true}
+                this.$store.commit('MODIFY_MQTTCLIENT', tempClient);
+                this.pahoClient.subscribe(this.topic)
                 this.interval = setInterval(() => {
+
                     this.randomValue(this.jsonMsg);
-                    this.returnTemporary();
-                    this.publishSuccess++;
+                    let myJson = {};
+                    this.jsonMsg.forEach(msg => {
+                        myJson[msg.key] = msg.value
+                    })
+                    let pahoMsg = new Paho.Message(JSON.stringify(myJson))
+                    pahoMsg.destinationName = this.topic
+                    this.pahoClient.send(pahoMsg);
                 }, this.setTime);
 
-                this._timer = setInterval(() => {
-                    this.data.arrMsg = this.temporaryArr;
-
-                    axios.post(`http://localhost:8080/mqtt/send/start/${this.client.id}`, this.data)
-                        .then((res) => {
-                        })
-                        .catch(err => {
-                            console.log(err);
-                        })
-                    this.temporaryArr = [];
-                    
-                }, 250);
             },
-            returnTemporary() {
-                let myJson = {};
-                this.jsonMsg.forEach(msg => {
-                    myJson[msg.key] = msg.value
-                })
 
-                this.temporaryArr = [ ...this.temporaryArr, JSON.stringify(myJson) ]
-            },
             sendStop() {
-                this.client.running = false;
-                this.$store.commit('MODIFY_MQTTCLIENT', this.client);
                 clearInterval(this.interval);
                 clearInterval(this._timer);
+                this.pahoClient.unsubscribe(this.topic);
+                let tempClient = { ...this.client, running: false}
+                this.$store.commit('MODIFY_MQTTCLIENT', tempClient);
             },
             pageAdd(obj, arr) {
-
                 let tempObj = {};
                 Object.keys(obj[0]).forEach(item => {
                     tempObj[item] = ''
@@ -178,7 +173,6 @@
                 arr.value = [
                     ...arr.value, tempObj
                 ]
-                
             },
             pageDelete(obj, arr) {
                 if(this.page == obj.length) 
@@ -204,27 +198,10 @@
                 }
             },
             connect() {
-                this.$refs.pahoClient.connect();
-                /* let params = new URLSearchParams();
-                params.append('ip', this.data.ip);
-
-                axios.post('http://localhost:8080/mqtt/connect', this.data)
-                    .then(res => {
-                        if(res.data === 'NotConnected') {
-                            this.connectOK = false;
-                        } else {
-                            const tempClient = { id: res.data, index: this.index, running: false}
-                            this.connectOK = true;
-                            this.$store.commit('MODIFY_MQTTCLIENT', tempClient)
-                            this.client = tempClient;
-                        }
-                    }) */
-            },
-            submitTest() {
-
+                this.$refs.pahoClient.connect(this.inputData);
             },
             submit() {
-                if(this.data.topic.trim() == '') {
+                if(this.topic.trim() == '') {
                     alert('topic을 입력하세요')
                     return;
                 }
@@ -233,18 +210,12 @@
                     myJson[msg.key] = msg.value
                 })
 
-                this.data.msg = JSON.stringify(myJson)
-                axios.post(`http://localhost:8080/mqtt/send/${this.client.id}`, this.data)
-                    .then(res => {
-                        if (typeof res.data === 'string') {
-                            console.log(res.data);
-                        } else {
+                let pahoMsg = new Paho.Message(JSON.stringify(myJson))
+                pahoMsg.destinationName = this.topic
+                this.pahoClient.subscribe(this.topic);
+                this.pahoClient.send(pahoMsg);
+                this.pahoClient.unsubscribe(this.topic);
 
-                        }
-                    })  
-                    .catch(err => {
-                        console.log(err);
-                    })
                 
             },
             msgButtonClick(msg) {
@@ -255,8 +226,8 @@
                 Object.keys(tempObject).forEach((item, index) => {
                     if(item === 'topic') {
                         tempObject[item].charAt(tempObject[item].length - 1) === '/' 
-                            ? this.data.topic = tempObject[item] + this.gw_sn
-                            : this.data.topic = tempObject[item]
+                            ? this.topic = tempObject[item] + this.gw_sn
+                            : this.topic = tempObject[item]
                     } else {
                         this.jsonMsg = [
                             ...this.jsonMsg,

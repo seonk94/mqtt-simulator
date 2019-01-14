@@ -1,6 +1,6 @@
 <template>
     <div>
-
+        <h3>{{subscribes}} / {{publishs}}</h3>
     </div>
 </template>
 
@@ -10,43 +10,52 @@
         name: 'PahoClient',
         props: {
             client: {
-                host: '',
-                port: '',
-                clientId: '',
-                topic: ''
+                
             }
         },
         data() {
             return {
-                pahoClient: function() {}
+                pahoClient: function() {},
+                publishs: 0,
+                subscribes: 0
             }
         },
         created() {
-            
+
         },
         methods: {
-            connect() {
-                this.pahoClient = new Paho.Client(this.client.host, Number(this.client.port), this.client.clientId);
+            connect(data) {
+                this.pahoClient = new Paho.Client(data.host, Number(data.port), data.clientId);
                 this.pahoClient.onConnectLost = this.onConnectLost;
                 this.pahoClient.onMessageArrived = this.onMessageArrived;
-                console.log(this.pahoClient);
-                return this.pahoClient.connect({onSuccess: this.onConnect});
+                this.pahoClient.onMessageDelivered = this.onMessageDelivered
+                this.pahoClient.connect({onSuccess: this.onConnect});
             },
             onConnect() {
-                console.log('onConnect')
-                this.pahoClient.subscribe('connect');
-                let msg = new Paho.Message("Connect?");
-                msg.destinationName = "connect"
-                this.pahoClient.send(msg);
+
+                let tempClient = {
+                    ...this.client,
+                    connecting: true,
+                    host: this.pahoClient.host,
+                    port: this.pahoClient.port,
+                    id: this.pahoClient.clientId
+                }
+                this.$store.commit('MODIFY_MQTTCLIENT', tempClient);
+                this.$emit('is-connect', this.pahoClient)
             },
             onConnectLost(resObject) {
                 if(resObject.errorCode !== 0) {
                     console.log("onConnectionLost:"+responseObject.errorMessage);
                 }
             },
+            onMessageDelivered(msg) {
+                this.publishs++;
+            },
             onMessageArrived(msg) {
-                
-                console.log("onMessageArrived:"+msg.payloadString);
+                this.subscribes++;
+            },
+            PublishStart(data) {
+
             }
         }
     }

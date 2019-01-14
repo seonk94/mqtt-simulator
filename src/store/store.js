@@ -9,6 +9,8 @@ export const store = new Vuex.Store({
     state: {
         mqttClient: [
             {
+                host: '',
+                port: '',
                 index: 0,
                 id: '',
                 connecting: false,
@@ -22,8 +24,8 @@ export const store = new Vuex.Store({
         getMqttClient(state) {
             return state.mqttClient;
         },
-        getMqttClientByIndex(state, index) {
-            return state.mqttClient.filter(client => client.index === index);
+        getMqttClientByIndex(state) {
+            return (index) => state.mqttClient[index];
         },
         getCurrentIndex(state) {
             return state.currentIndex;
@@ -40,8 +42,7 @@ export const store = new Vuex.Store({
             state.currentIndex = state.mqttClient[state.mqttClient.length - 1].index;
         },
         MODIFY_MQTTCLIENT(state, client) {
-            const findIndex = state.mqttClient.findIndex( item => item.index === client.index);
-            state.mqttClient[findIndex] = client
+            state.mqttClient[client.index] = client
         },
         MODIFY_CURRENTINDEX(state, index) {
             state.currentIndex = index;
