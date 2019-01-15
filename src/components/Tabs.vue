@@ -33,21 +33,12 @@
 <script>
     import MqttClient from './MqttClient.vue'
     import { mapGetters } from 'vuex';
-import { setInterval } from 'timers';
     export default {
         name: 'Tabs',
         computed: {
             ...mapGetters({
                 mqttClient: 'getMqttClient'
             })
-        },
-        data() {
-            return {
-                
-            }
-        },
-        created() {
-
         },
         methods: {
             addClient() {
