@@ -54,9 +54,6 @@
             },
             onMessageArrived(msg) {
                 this.subscribes++;
-            },
-            PublishStart(data) {
-
             }
         }
     }

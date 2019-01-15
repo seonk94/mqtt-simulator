@@ -98,7 +98,14 @@
                     'server_time',
                     'm_data',
                     'unsubscribe',
-                    'scan_res'
+                    'scan_res',
+                    'tm1_connect_req',
+                    'tm1_disconnect_req',
+                    'tm1_config',
+                    'gw1_config',
+                    'tm1_warn',
+                    'ack_server',
+                    'ack_gw'
                 ],
                 gw_sn: '',
                 connectOK: '',
@@ -159,11 +166,13 @@
             },
 
             sendStop() {
-                clearInterval(this.interval);
-                clearInterval(this._timer);
-                this.pahoClient.unsubscribe(this.topic);
-                let tempClient = { ...this.client, running: false}
-                this.$store.commit('MODIFY_MQTTCLIENT', tempClient);
+                if(typeof this.interval == 'number') {
+                    clearInterval(this.interval);
+                    clearInterval(this._timer);
+                    this.pahoClient.unsubscribe(this.topic);
+                    let tempClient = { ...this.client(this.index), running: false}
+                    this.$store.commit('MODIFY_MQTTCLIENT', tempClient);
+                }
             },
             pageAdd(obj, arr) {
                 let tempObj = {};

@@ -75,6 +75,66 @@ const scan_res = {
     topic: '/command/'
 }
 
+const tm1_connect_req = {
+    command_type: '',
+    tm1_sn: '',
+    cmd_no: '',
+    topic: '/command/'
+}
+
+const tm1_disconnect_req = {
+    command_type: '',
+    tm1_sn: '',
+    cmd_no: '',
+    topic: '/command/'
+}
+
+const tm1_config = {
+    command_type: '',
+    tm1_sn: '',
+    temp: '',
+    temp_low: '',
+    temp_high: '',
+    move: '',
+    no_move_sec: '',
+    pos1: '',
+    pos2: '',
+    pos3: '',
+    pos4: '',
+    led: '',
+    motor: '',
+    cmd_no: '',
+    topic: '/command/'
+}
+
+const gw1_config = {
+    command_type: '',
+    cmd_no: '',
+    config: '',
+    topic: '/command/'
+}
+
+const tm1_warn = {
+    tm1_sn: '',
+    warn_type: '',
+    time: '',
+    topic: '/warn/'
+}
+
+const ack_server = {
+    command_type: '',
+    error_type: '',
+    rcv_time: '',
+    topic: '/command/'
+}
+
+const ack_gw = {
+    command_type: '',
+    error_type: '',
+    cmd_no: '',
+    topic: '/ack/'
+}
+
 export default {
     returnObject (msgName) {
         switch(msgName) {
@@ -90,6 +150,20 @@ export default {
                 return unsubscribe;
             case 'scan_res'  :
                 return scan_res;
+            case 'tm1_connect_req'  :
+                return tm1_connect_req;
+            case 'tm1_disconnect_req'  :
+                return tm1_disconnect_req;
+            case 'tm1_config'  :
+                return tm1_config; 
+            case 'gw1_config'  :
+                return gw1_config;                
+            case 'tm1_warn'  :
+                return tm1_warn; 
+            case 'ack_server'  :
+                return ack_server; 
+            case 'ack_gw'  :
+                return ack_gw; 
             default:
                 console.log('not match');
                 break;
@@ -148,7 +222,36 @@ export default {
                 return ~~(Math.random() * 5)   
             case 'cmd_no':
                 return ~~(Math.random() * 10)   
-                 
+            case 'temp':
+                return ~~(((Math.random() * 1) + 2) * 100000)
+            case 'temp_low':
+                return ~~(((Math.random() * 1) + 2) * 100000)
+            case 'temp_high':
+                return ~~(((Math.random() * 1) + 2) * 100000)
+            case 'move':
+                return ~~(Math.random() * 5)   
+            case 'no_move_sec':
+                return ~~(Math.random() * 60)  
+            case 'pos1':
+
+            case 'pos2':
+
+            case 'pos3':
+
+            case 'pos4':
+                return ~~(Math.random() * 5)   
+            case 'led':
+                return ~~(Math.random() * 5)  
+            case 'motor':
+                return ~~(Math.random() * 5)  
+            case 'config':
+                return ~~(Math.random() * 5)  
+            case 'warn_type':
+                return ~~(Math.random() * 5)  
+            case 'error_type':
+                return ~~(Math.random() * 5)  
+            case 'rcv_time':
+                return (new Date()).getTime();
             default:
                 console.log(key);
                 break;
