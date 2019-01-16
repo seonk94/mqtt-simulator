@@ -1,11 +1,16 @@
 <template>
     <div>
-        <h3>{{subscribes}} / {{publishs}}</h3>
+        <!-- <h3>{{subscribes}} / {{publishs}}</h3> -->
+        <scatter-chart 
+            :topicArr="topicArr" 
+            :nowSeconds="nowSeconds"
+        />
     </div>
 </template>
 
 <script>
     import Paho from 'paho-mqtt';
+    import ScatterChart from './ScatterChart.vue'
     export default {
         name: 'PahoClient',
         props: {
@@ -17,11 +22,13 @@
             return {
                 pahoClient: function() {},
                 publishs: 0,
-                subscribes: 0
+                subscribes: 0,
+                topicArr: [],
+                nowSeconds: ''
             }
         },
         created() {
-
+            this.nowSeconds = ~~((new Date()).getTime() / 1000)
         },
         methods: {
             connect(data) {
@@ -40,7 +47,6 @@
                     port: this.pahoClient.port,
                     id: this.pahoClient.clientId
                 }
-                
                 this.$store.commit('MODIFY_MQTTCLIENT', tempClient);
                 this.$emit('is-connect', this.pahoClient)
             },
@@ -50,11 +56,26 @@
                 }
             },
             onMessageDelivered(msg) {
+                let latency = (new Date()).getTime() - msg.startTime;
+                let currentTime = ~~(msg.startTime / 1000)
+                let filterTopic = this.topicArr.findIndex(ele => {
+                    return ele.seconds == currentTime && ele.latency == latency
+                })
+                if(filterTopic === -1) {
+                    this.topicArr = [
+                        ...this.topicArr, { seconds: currentTime, topic: msg.topic, latency: latency, count: 0 }
+                    ]
+                } else {
+                    this.topicArr[filterTopic].count++;
+                }
                 this.publishs++;
             },
             onMessageArrived(msg) {
-                this.subscribes++;
+                //this.subscribes++;
             }
+        },
+        components: {
+            ScatterChart
         }
     }
 </script>

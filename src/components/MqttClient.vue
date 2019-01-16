@@ -147,20 +147,22 @@
                 this.pahoClient = pahoClient;
             },
             sendStart() {
-                
+                this.randomValue(this.jsonMsg);
                 let tempClient = { ...this.client(this.index), running: true}
                 this.$store.commit('MODIFY_MQTTCLIENT', tempClient);
                 this.pahoClient.subscribe(this.topic)
                 this.interval = setInterval(() => {
 
-                    this.randomValue(this.jsonMsg);
+                    
                     let myJson = {};
                     this.jsonMsg.forEach(msg => {
                         myJson[msg.key] = msg.value
                     })
                     let pahoMsg = new Paho.Message(JSON.stringify(myJson))
+                    pahoMsg.startTime = (new Date()).getTime();
                     pahoMsg.destinationName = this.topic
                     this.pahoClient.send(pahoMsg);
+                    this.randomValue(this.jsonMsg);
                 }, this.setTime);
 
             },
