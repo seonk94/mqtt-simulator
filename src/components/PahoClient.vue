@@ -29,10 +29,12 @@
         },
         created() {
             this.nowSeconds = ~~((new Date()).getTime() / 1000)
+            //console.log('mylib', mylib);
         },
         methods: {
             connect(data) {
-                this.pahoClient = new Paho.Client(data.host, Number(data.port), data.clientId);
+                this.pahoClient = new Paho.Client(data.host, Number(data.port), "/ws", data.clientId);
+                console.log(this.pahoClient)
                 this.pahoClient.onConnectLost = this.onConnectLost;
                 this.pahoClient.onMessageArrived = this.onMessageArrived;
                 this.pahoClient.onMessageDelivered = this.onMessageDelivered
@@ -71,7 +73,6 @@
                 this.publishs++;
             },
             onMessageArrived(msg) {
-                //this.subscribes++;
             }
         },
         components: {

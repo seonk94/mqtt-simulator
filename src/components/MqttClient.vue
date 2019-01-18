@@ -6,6 +6,7 @@
                     <span><input type="text" class="inpText" v-model="inputData.host" placeholder="host" style="width: 27%;"></span>
                     <span><input type="text" class="inpText" v-model="inputData.port" placeholder="port" style="width: 18%;"></span>
                     <button :class="{ connect : connectOK === true , disconnect : connectOK === false }" @click="connect()" :disabled="connectOK === true">connect</button>
+                    <button @click="disconnectClient" :disabled="connectOK !== true">disconnect</button>
                 </div>
                 <div class="formHorizental">
                     <span><input type="text" class="inpText" placeholder="gateway serial number" v-model="gw_sn"/></span>
@@ -211,6 +212,10 @@
             connect() {
                 this.$refs.pahoClient.connect(this.inputData);
             },
+            disconnectClient() {
+                this.pahoClient.disconnect();
+                this.connectOK = '';
+            },
             submit() {
                 if(this.topic.trim() == '') {
                     alert('topic을 입력하세요')
@@ -271,7 +276,7 @@
             clearInterval(this.interval);
             clearInterval(this._timer);
             if(this.connectOK)
-                this.pahoClient.disconnect();
+                this.disconnectClient();
         },
         components: {
             PahoClient
