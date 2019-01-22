@@ -5,6 +5,12 @@
                 <div class="formHorizental">
                     <span><input type="text" class="inpText" v-model="inputData.host" placeholder="host" style="width: 27%;"></span>
                     <span><input type="text" class="inpText" v-model="inputData.port" placeholder="port" style="width: 18%;"></span>
+                    <!-- <button :class="{ connect : connectOK === true , disconnect : connectOK === false }" @click="connect()" :disabled="connectOK === true">connect</button>
+                    <button @click="disconnectClient" :disabled="connectOK !== true">disconnect</button> -->
+                </div>
+                <div class="formHorizental">
+                    <span><input type="text" class="inpText" v-model="inputData.username" placeholder="username" style="width: 27%;"></span>
+                    <span><input type="password" class="inpText" v-model="inputData.pw" placeholder="password" style="width: 18%;"></span>
                     <button :class="{ connect : connectOK === true , disconnect : connectOK === false }" @click="connect()" :disabled="connectOK === true">connect</button>
                     <button @click="disconnectClient" :disabled="connectOK !== true">disconnect</button>
                 </div>
@@ -85,7 +91,9 @@
                 inputData: {
                     host: 'localhost',
                     port: 9001,
-                    clientId: ''
+                    clientId: '',
+                    username: '',
+                    pw: ''
                 },
                 jsonMsg: [
                     {

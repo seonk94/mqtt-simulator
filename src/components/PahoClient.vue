@@ -34,11 +34,20 @@
         methods: {
             connect(data) {
                 this.pahoClient = new Paho.Client(data.host, Number(data.port), "/ws", data.clientId);
-                console.log(this.pahoClient)
                 this.pahoClient.onConnectLost = this.onConnectLost;
                 this.pahoClient.onMessageArrived = this.onMessageArrived;
                 this.pahoClient.onMessageDelivered = this.onMessageDelivered
-                this.pahoClient.connect({onSuccess: this.onConnect});
+                
+                if(data.username.length > 1) {
+                    this.pahoClient.connect({
+                        onSuccess: this.onConnect,
+                        onFailure: this.onFailure,
+                        userName: data.username,
+                        password: data.pw
+                    })
+                } else {
+                    this.pahoClient.connect({onSuccess: this.onConnect, onFailure: this.onFailure,});
+                }
             },
             onConnect() {
 
@@ -56,6 +65,9 @@
                 if(resObject.errorCode !== 0) {
                     console.log("onConnectionLost:"+responseObject.errorMessage);
                 }
+            },
+            onFailure(err) {
+                alert(err.errorMessage)
             },
             onMessageDelivered(msg) {
                 let latency = (new Date()).getTime() - msg.startTime;
