@@ -14,9 +14,7 @@
                     <button :class="{ connect : connectOK === true , disconnect : connectOK === false }" @click="connect()" :disabled="connectOK === true">connect</button>
                     <button @click="disconnectClient" :disabled="connectOK !== true">disconnect</button>
                 </div>
-                <div class="formHorizental">
-                    <span><input type="text" class="inpText" placeholder="gateway serial number" v-model="gw_sn"/></span>
-                </div>
+
                 <div class="msg-button">
                     <span v-for="msg in msgName" :key="msg">
                         <button @click="msgButtonClick(msg)"> {{msg}} </button>
@@ -28,14 +26,19 @@
                 <br>
                 <div class="formHorizental" v-for="(msg, index) in jsonMsg" :key="index">
                     <div v-if="typeof msg.value == 'object'" style="padding: 10px 0px;">
-                        <ul style="font-weight: bold;">{{msg.key}}</ul>
+                        <ul style="font-weight: bold;">
+                            <span><input type="text" class="h-inpText" v-model="msg.key" placeholder="key"></span>
+                            <span v-show="index == jsonMsg.length - 1">
+                            <button @click="addProp()" >Add</button>
+                        </span>
+                        </ul>
                         <button @click="pageClick('left', msg.value.length)"> left </button> <span>{{page}} / {{msg.value.length}}</span> 
                         <button @click="pageClick('right', msg.value.length)"> right </button> 
                         <button @click="pageAdd(msg.value, msg)"> add </button>
                         <button @click="pageDelete(msg.value, msg)"> delete </button>
                         <div class="intend" v-for="(deepMsg, idx) in msg.value" :key="deepMsg.tm1_sn + idx">
-                            <div v-for="(deepMsgValue, deepMsgProName) in deepMsg" :key="deepMsgValue.key" v-show="page == idx + 1">
-                                <span><input type="text" class="h-inpText" :value="deepMsgProName" placeholder="key"></span>
+                            <div v-for="(deepMsgValue, deepMsgProName, i) in deepMsg" :key="deepMsgValue.key" v-show="page == idx + 1">
+                                <span><input type="text" class="h-inpText" :value="deepMsgProName" @change="deepKeyChange($event, index, i, deepMsgValue)" placeholder="key"></span>
                                 <span><input type="text" class="h-inpText" v-model="deepMsg[deepMsgProName]" placeholder="value"></span>
                             </div>
                         </div>
@@ -44,6 +47,7 @@
                         <span><input type="text" class="h-inpText" v-model="msg.key" placeholder="key"></span>
                         <span><input type="text" class="h-inpText" v-model="msg.value" placeholder="value"></span>
                         <button @click="deleteProp(index)">Delete</button>
+                        <button @click="deepProp(index)">Deep</button>
                         <span v-show="index == jsonMsg.length - 1">
                             <button @click="addProp()" >Add</button>
                             <button @click="submit" :disabled="connectOK !== true" >Submit</button>
@@ -54,7 +58,7 @@
             </v-flex>
             <v-flex xs3>
                 <v-flex xs12>
-                    <input v-model="setTime" />
+                    <input class="ms-input" v-model="setTime" /> m/s
                 </v-flex>
                 <v-flex xs12>
                     <button @click="sendStart" :disabled=" CANSTART !== true">Start</button>
@@ -116,7 +120,6 @@
                     'ack_server',
                     'ack_gw'
                 ],
-                gw_sn: '',
                 connectOK: '',
                 page: 1,
                 interval: '',
@@ -148,7 +151,7 @@
             },
             'inputData.port'() {
                 this.connectOK = '';
-            },
+            }
         },
         methods: {
             IsConnect(pahoClient) {
@@ -264,7 +267,6 @@
                         ]
                     }
                 })
-
             },
             randomValue(obj) {
                 obj.forEach(item => {
@@ -277,6 +279,15 @@
                             })
                         :   item.value = simul.randomValue(item.key)
                 })
+            },
+            deepProp(index) {
+                this.jsonMsg[index].value = [ {key: 'value'} ]
+            
+            },
+            deepKeyChange(e, index, di, value) {
+                let temp = {};
+                temp[e.target.value] = value
+                this.jsonMsg[index].value[di] = temp;
             }
             
         },
@@ -360,5 +371,9 @@
     }
     .auto-box {
         padding: 10px 0px;
+    }
+    .ms-input{
+        width:100px;
+        text-align:right;
     }
 </style>

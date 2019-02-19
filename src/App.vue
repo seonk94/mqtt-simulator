@@ -3,7 +3,7 @@
     <!-- header : s -->
     <div id="header">
       <div id="gnb">
-        <h2>Gateway Simulator</h2>  
+        <h2>MQTT Simulator</h2>  
       </div>
     </div>
     <Tabs class="tab-margin"/>
@@ -28,7 +28,6 @@ export default {
   },
   data() {
     return {
-      gw_sn: '',
     }
   },
   computed: {
