@@ -106,19 +106,7 @@
                     }
                 ],
                 msgName: [
-                    'gw_cert',
-                    'gw_connect',
-                    'server_time',
-                    'm_data',
-                    'unsubscribe',
-                    'scan_res',
-                    'tm1_connect_req',
-                    'tm1_disconnect_req',
-                    'tm1_config',
-                    'gw1_config',
-                    'tm1_warn',
-                    'ack_server',
-                    'ack_gw'
+                    'topic',
                 ],
                 connectOK: '',
                 page: 1,
